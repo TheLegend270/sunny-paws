@@ -107,7 +107,7 @@
         </div>
         <div id="info-box">
             <div class="info-triangle"></div>
-            <p>Die Website von Sunny Paws wurde von <a href="https://www.linkedin.com/in/moritz-tiedemann-164207207/" target="_blank">Moritz Alfons Theodor Tiedemann</a>, Psychotherapie-Masterstudent in Potsdam, für Forschungszwecke ohne kommerzielle Absichten erstellt. Ziel ist es, Kinder, Jugendliche und Eltern spielerisch und optimistisch zu ermutigen. Das 3D-Modell der Katze, <a href="https://skfb.ly/6TKrP" target="_blank">Toon Cat FREE</a> von Omabuarts Studio, ist unter <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution</a> lizenziert und auf Sketchfab verfügbar. Es werden keine personenbezogenen Daten über die Session hinaus von <a href="https://elevenlabs.io/conversational-ai" target="_blank">ElevenLabs</a> gespeichert.</p>
+            <p>Die Website von Sunny Paws wurde von <a href="https://www.linkedin.com/in/moritz-tiedemann-164207207/" target="_blank">Moritz Alfons Theodor Tiedemann</a>, Psychotherapie-Masterstudent in Potsdam, für Forschungszwecke ohne kommerzielle Absichten erstellt. Ziel ist es, Kinder, Jugendliche und Eltern spielerisch und optimistisch zu ermutigen. Das 3D-Modell der Katze, <a href="https://skfb.ly/6TKrP" target="_blank">Toon Cat FREE</a> von Omabuarts Studio, ist unter <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution</a> lizenziert und auf <a href="https://sketchfab.com/" target="_blank">Sketchfab</a> verfügbar. Es werden keine personenbezogenen Daten über die Session hinaus von <a href="https://elevenlabs.io/conversational-ai" target="_blank">ElevenLabs</a> gespeichert.</p>
         </div>
     </div>
 
@@ -201,18 +201,12 @@
         // Info box functionality
         const infoIcon = document.getElementById('info-icon');
         const infoBox = document.getElementById('info-box');
+        let isInfoBoxVisible = false;
         
-        infoIcon.addEventListener('mouseenter', () => {
-            infoBox.style.display = 'block';
-        });
-        
-        infoIcon.addEventListener('mouseleave', () => {
-            infoBox.style.display = 'none';
-        });
-        
-        infoIcon.addEventListener('touchstart', (e) => {
+        infoIcon.addEventListener('click', (e) => {
             e.preventDefault();
-            infoBox.style.display = infoBox.style.display === 'none' ? 'block' : 'none';
+            isInfoBoxVisible = !isInfoBoxVisible;
+            infoBox.style.display = isInfoBoxVisible ? 'block' : 'none';
         });
     </script>
     <script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>
