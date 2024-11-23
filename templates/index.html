@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Cat - Interactive 3D Model</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { 
+            margin: 0;
+            overflow: hidden;
+            background-color: #ffface;
+        }
+        canvas { 
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+        #loading img {
+            width: 240px;
+            height: 240px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #info-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        #info-icon {
+            width: 40px;
+            height: 40px;
+            background: #FFD66B;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        #info-icon i {
+            color: white;
+        }
+        #info-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        #info-box {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 300px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: none;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        #info-box a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        #info-box a:hover {
+            text-decoration: underline;
+        }
+        .info-triangle {
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid white;
+        }
+        #convai-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <img src="/static/cat-profile.png" alt="Loading...">
+    </div>
+    
+    <div id="info-container">
+        <div id="info-icon">
+            <i class="fas fa-info"></i>
+        </div>
+        <div id="info-box">
+            <div class="info-triangle"></div>
+            <p>Welcome to Happy Cat! This Model is named <a href="https://skfb.ly/6TKrP" target="_blank">Toon Cat FREE</a> by Omabuarts Studio and is licensed under <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution</a>.</p>
+        </div>
+    </div>
+
+    <div id="convai-container">
+        <elevenlabs-convai agent-id="1HaOHxZ3GQvMNjifE8TG"></elevenlabs-convai>
+    </div>
+
+    <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.156.1/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.156.1/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xffface);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 4.2, 5);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxPolarAngle = Math.PI / 2 - 0.1;
+        controls.minDistance = 2;
+
+        const light = new THREE.AmbientLight(0xffffff, 4);
+        scene.add(light);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+        directionalLight.position.set(1, 3, 2);
+        scene.add(directionalLight);
+
+        const ground = new THREE.Mesh(
+            new THREE.PlaneGeometry(10, 10),
+            new THREE.MeshBasicMaterial({ color: 0xffface, side: THREE.DoubleSide })
+        );
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = 0.01;
+        scene.add(ground);
+
+        const clock = new THREE.Clock();
+        const loader = new GLTFLoader();
+        const modelUrl = '/static/models/cat/scene.gltf';
+
+        loader.load(modelUrl, (gltf) => {
+            const model = gltf.scene;
+            model.scale.set(0.005, 0.005, 0.005);
+            model.rotation.y = -Math.PI * (24/180);
+
+            const mixer = new THREE.AnimationMixer(model);
+            const action = mixer.clipAction(gltf.animations[0]);
+            action.timeScale = 0.9;
+            action.play();
+
+            scene.add(model);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                mixer.update(clock.getDelta());
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 1000);
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Info box functionality
+        const infoIcon = document.getElementById('info-icon');
+        const infoBox = document.getElementById('info-box');
+        
+        infoIcon.addEventListener('mouseenter', () => {
+            infoBox.style.display = 'block';
+        });
+        
+        infoIcon.addEventListener('mouseleave', () => {
+            infoBox.style.display = 'none';
+        });
+        
+        infoIcon.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            infoBox.style.display = infoBox.style.display === 'none' ? 'block' : 'none';
+        });
+    </script>
+    <script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>
+</body>
+</html>
